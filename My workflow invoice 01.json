@@ -1,0 +1,287 @@
+{
+  "name": "My workflow invoice 01",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -448,
+        -64
+      ],
+      "id": "a65fd33c-cc07-4ba9-95de-5f1c44a43ab5",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "195z6AKhiCtPgMNE81E8yK81Mu0rc6qfUoUJ0YKi6m3s",
+          "mode": "list",
+          "cachedResultName": "invoice",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/195z6AKhiCtPgMNE81E8yK81Mu0rc6qfUoUJ0YKi6m3s/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2092375974,
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/195z6AKhiCtPgMNE81E8yK81Mu0rc6qfUoUJ0YKi6m3s/edit#gid=2092375974"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -256,
+        -64
+      ],
+      "id": "45a578c2-f1a0-4576-b97e-cd88ec246417",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "W9AT2K8UoFtRNUz0",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "815173eb-57ff-4b0d-bdc6-093e26043eff",
+              "leftValue": "={{ $json['Payment Status'] }}",
+              "rightValue": "=Paid",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        -112,
+        -64
+      ],
+      "id": "2c0bbd70-0a4a-4973-9b7a-cf1a347af568",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json['Customer Email'] }}",
+        "subject": "Invoice Payment Due Reminder",
+        "message": "=Dear   {{ $json['Customer Name'] }}\n      \nThis is a reminder that your\n\n{{ $json['Customer Id'] }}  is due on\n{{ $json['Due Date'] }}  Please make the payment before the due date to avoid any late fees or interruption in service.\nThank you for your prompt attention.\nif your confusion & more details so you can easly reach us.\n\nBest regards,\nBilling Department\n\n\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        304,
+        -112
+      ],
+      "id": "c35f162d-1dce-4206-b037-8a9822e064de",
+      "name": "Send a message",
+      "webhookId": "4d54c54e-3e62-48b0-bc98-1eabf1931560",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "nHO3LVVILnarVS8o",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json['Customer Email'] }}",
+        "subject": "Overdue Invoice – Immediate Payment Required",
+        "message": "=Dear    {{ $json['Customer Name'] }}\n\nOur records show that customer id {{ $json['Customer Id'] }}  was due on \n{{ $json['Due Date'] }}  and remains unpaid.\nPlease make the payment immediately to avoid further action or service suspension.\n\nIf you have any questions regarding this invoice, contact us right away.\nBest regards,\nFinance team.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        448,
+        48
+      ],
+      "id": "ebbe273b-2cc4-4e0e-ace6-f74634e8eed8",
+      "name": "Send a message1",
+      "webhookId": "6dcf9291-f102-4fe9-9d09-2238788a62f4",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "nHO3LVVILnarVS8o",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json['Payment Status'] }}",
+                    "rightValue": "Unpaid",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "a1e9e998-445c-42c5-a717-05109a47fd2a"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "a4b82de9-6c0c-40b0-bdf6-cc3eb01423df",
+                    "leftValue": "={{ $json['Payment Status'] }}",
+                    "rightValue": "Overdue",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        64,
+        -80
+      ],
+      "id": "c62474aa-9b17-45dc-b716-949315e7b1e0",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "sendTo": "iambeginnerforn8n@gmail.com",
+        "subject": "Ambigous invoice",
+        "message": "=Hi, team please look into this invoice.  {{ $json['Customer Email'] }}{{ $json['Customer Name'] }} \n\n{{ $json['Due Date'] }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        224,
+        128
+      ],
+      "id": "2361df61-6fdf-4e84-baa1-f65347611e4e",
+      "name": "Send a message2",
+      "webhookId": "a55ce614-90d6-4082-aa97-f21a3375a7a4",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "nHO3LVVILnarVS8o",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "2c51e89c-37fa-4744-ab97-59f9a785a725",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "15238a85cd2c96dccc749789906cc2a06e7c2b081b846e6464e2e480b82aac48"
+  },
+  "id": "gxETGtaJCLbGHv2z",
+  "tags": []
+}
